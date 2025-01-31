@@ -1,21 +1,13 @@
-name: Publish Release
-
+name: Build Crazy Crates Plugin
 on:
   push:
     branches:
-      - release
+      - main  # Change this to your preferred branch
   workflow_dispatch:
-    inputs:
-      logLevel:
-        description: 'Log Level'
-        required: false
-        default: 'warning'
 
 jobs:
-  publish:
+  build:
     runs-on: ubuntu-latest
-    if: "contains(github.event.commits[0].message, '[build]')"
-    
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -33,19 +25,11 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      - name: Build Plugin
-        run: ./gradlew build --stacktrace
+      - name: Build JAR
+        run: ./gradlew assemble
 
-      - name: Upload JAR Artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload JAR as an artifact
+        uses: actions/upload-artifact@v3
         with:
-          name: CrazyCrates-JAR
+          name: crazy-crates-plugin
           path: build/libs/*.jar
-
-      - name: Publish to Modrinth and Hangar
-        if: env.HANGAR_KEY != '' && env.MODRINTH_TOKEN != ''
-        env:
-          HANGAR_KEY: ${{ secrets.HANGAR_KEY }}
-          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
-          COMMIT_MESSAGE: ${{ join(github.event.commits.*.message, '<br>* ') }}
-        run: ./gradlew modrinth publishAllPublicationsToHangar --stacktrace
