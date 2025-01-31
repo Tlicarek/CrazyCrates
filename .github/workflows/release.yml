@@ -1,13 +1,15 @@
-name: Build Crazy Crates Plugin
+name: Build CrazyCrates JAR
+
 on:
   push:
     branches:
-      - main  # Change this to your preferred branch
+      - release
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -25,11 +27,12 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      - name: Build JAR
-        run: ./gradlew assemble
+      - name: Build Plugin
+        run: ./gradlew build --stacktrace
 
-      - name: Upload JAR as an artifact
-        uses: actions/upload-artifact@v3
+      - name: Upload JAR Artifact
+        uses: actions/upload-artifact@v4
         with:
-          name: crazy-crates-plugin
+          name: CrazyCrates-JAR
           path: build/libs/*.jar
+
